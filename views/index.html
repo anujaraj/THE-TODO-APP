@@ -20,7 +20,7 @@
                 </form>
             </td>
             <td>
-                <form action="/signup" method="post">
+                <form id="signup" action="/signup" method="post">
                     <input type="text" name="name">
                     <input type="text" name="username">
                     <input type="password" name="password">
@@ -29,7 +29,18 @@
             </td>
         </tr>
     </table>
-    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script>
+    $(document).ready(function  () {
+        $("#signup").on("submit",function  (e) {
+            e.preventDefault();
+            console.log();
+            $.post("/signup",$(this).serialize(), function( data ) {
+                window.location.href = window.location.origin + '/todo'
+           });
+        })
+    });
+    </script>
     
 </body>
 </html>

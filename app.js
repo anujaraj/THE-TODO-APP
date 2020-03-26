@@ -192,7 +192,7 @@ app.post('/addtask', function(req,resp) {
       if (error) {
         resp.json({
             status:false,
-            message:'there are some error with query'
+            message:'there are some error with query...Please login'
         })
       }else{
        
@@ -276,7 +276,7 @@ app.post('/signup', function(req,resp) {
                         return resp.redirect('/login');
                     } else { // If registering is successful.
                         req.session.uniqueID = username;
-                        return resp.redirect('/todo');
+                        //return resp.redirect('/todo');
                     }
                 } );
 			}
