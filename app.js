@@ -132,6 +132,7 @@ app.get('/my-list', function(req,resp) {
    connection.query(sql, [username], function(err, row) {
       if (err) {
           console.log('err');
+          return resp.redirects('/redirects')
        
         } else {
            
@@ -143,7 +144,8 @@ app.get('/my-list', function(req,resp) {
                 
                 }
                 else{
-                 return resp.sendFile('./views/todo.html', { root: __dirname });
+                    return resp.send('You dont have a list..make one<a href="/todo">Make a task list</a>');
+                //  return resp.sendFile('./views/todo.html', { root: __dirname });
                 }
             }
        
