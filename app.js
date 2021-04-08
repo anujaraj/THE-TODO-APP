@@ -99,19 +99,19 @@ app.get('/signup', function(req,resp) {
 });
 
 app.get('/todo', function(req,resp) {
-     username = req.session.uniqueID;
+     email = req.session.uniqueID;
     
 
     
-    sql = 'SELECT * FROM todos WHERE username = ?';
-    connection.query(sql, [username], function(err, row) {
+    sql = 'SELECT * FROM todos WHERE email = ?';
+    connection.query(sql, [email], function(err, row) {
        if (err) {
            console.log('err');
         
          } else {
             
              if(typeof row !== 'undefined' && row.length > 0){
-                 req.session.uniqueID = row[0].username;
+                 req.session.uniqueID = row[0].email;
                  console.log(row);
                  return resp.sendFile('./views/todo.html', {root: __dirname});
 
@@ -127,9 +127,9 @@ app.get('/todo', function(req,resp) {
 });
 
 app.get('/my-list', function(req,resp) {
-    username = req.session.uniqueID;
-   sql = 'SELECT * FROM todos WHERE username = ?';
-   connection.query(sql, [username], function(err, row) {
+    email = req.session.uniqueID;
+   sql = 'SELECT * FROM todos WHERE email = ?';
+   connection.query(sql, [email], function(err, row) {
       if (err) {
           console.log('err');
           return resp.redirects('/redirects')
@@ -137,7 +137,7 @@ app.get('/my-list', function(req,resp) {
         } else {
            
             if(typeof row !== 'undefined' && row.length > 0){
-                req.session.uniqueID = row[0].username;
+                req.session.uniqueID = row[0].email;
                 console.log(row);
             
                 resp.send(JSON.stringify(row));
@@ -185,7 +185,7 @@ app.post('/addtask', function(req,resp) {
 
     var todos={
         "todo":req.body.newtask,
-        "username":req.session.uniqueID
+        "email":req.session.uniqueID
         
     }
     connection.query('INSERT INTO todos SET ?',todos, function (error, results, fields) {
@@ -226,39 +226,37 @@ app.post('/removetask', function(req,resp) {
 });
 
 app.post('/login',function(req,resp) {
-    username = req.body.username;
+    email = req.body.email;
     password = req.body.password;
-    sql = 'SELECT * FROM users WHERE username = ? AND password = ?';
-    connection.query(sql, [username, password], function(err, row) {
-        if (err) {
-            console.log('error');
-        } else {
-            
-            if(typeof row !== 'undefined' && row.length > 0){
-                req.session.uniqueID = row[0].username;
-            
-                 return resp.redirect('/todo');
-             
-
-                }
-                else{
-                 return resp.sendFile('./views/index.html', { root: __dirname });
-                }
-            }
-        
-    });
+    sql = 'SELECT * FROM users WHERE email = ? AND password = ?';
+    connection.query(sql, [email, password], function(err, row) {
+		if (err) {
+			// If there is an error in executing the statements
+			console.log('error');
+		} else {
+			if (typeof row !== 'undefined' && row.length > 0) {
+				// If login credentials are correct
+				req.session.userId = row[0].email;
+				return resp.redirect('/todo');
+			} else {
+                console.log("login err")
+				// If login credentials are wrong
+				resp.sendFile('./views/index.html', { root: __dirname });
+			}
+		}
+	});
 
 });
 
 app.post('/signup', function(req,resp) {
     
-        name=req.body.name;
-        username=req.body.username;
+        
+        email=req.body.email;
         password=req.body.password;
         
 
-    sql = 'SELECT * FROM users WHERE username = ?';
-	connection.query(sql, [username], function(err, row) {
+    sql = 'SELECT * FROM users WHERE email = ?';
+	connection.query(sql, [email], function(err, row) {
 		if (err) {
             // If there is an error in executing the statements
 			console.log('error');
@@ -268,15 +266,15 @@ app.post('/signup', function(req,resp) {
                 return resp.redirect('/login');
 			} else {
                 // If username is not there then we can add to database
-                sqlQuery = 'INSERT INTO users (name, username, password) VALUES (?, ?, ?)'
-                connection.query(sqlQuery, [name, username, password], (err, row) => {
+                sqlQuery = 'INSERT INTO users (email, password) VALUES (?, ?)'
+                connection.query(sqlQuery, [email, password], (err, row) => {
                     if (err) {
                         // If there is any error in executing the statements
                         console.log('error');
                         return resp.redirect('/login');
                     } else { // If registering is successful.
-                        req.session.uniqueID = username;
-                        //return resp.redirect('/todo');
+                        req.session.uniqueID = email;
+                        return resp.redirect('/todo');
                     }
                 } );
 			}
